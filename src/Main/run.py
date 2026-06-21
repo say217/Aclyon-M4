@@ -25,9 +25,6 @@ app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY", "change
 # ── Eager pipeline load at startup ────────────────────────────────────────────
 def _load_pipeline():
     try:
-        # run.py is at:  src/Main/run.py
-        # Pipeline_src is at: <project_root>/Pipeline_src/
-        # So we need 3 levels up: Main/ → src/ → project_root/
         project_root = Path(__file__).resolve().parent.parent.parent
         pipeline_dir = str(project_root / "Pipeline_src")
 
@@ -36,7 +33,6 @@ def _load_pipeline():
 
         print(f"[INFO] Loading pipeline from: {pipeline_dir}")
 
-        # Import as module to avoid shadowing the FastAPI 'app' object
         import execute as _execute_module
         pipeline_graph = _execute_module.app
         print("[INFO] Pipeline agent loaded successfully at startup")
@@ -59,4 +55,4 @@ app.include_router(app4_router, prefix="/app4")
 
 @app.get("/")
 def root():
-    return RedirectResponse(url="/app2/login")
+    return RedirectResponse(url="/app1/")  # TODO: revert to /app2/login when auth is ready

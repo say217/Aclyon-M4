@@ -8,8 +8,10 @@ router = APIRouter()
 
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent / "templates"))
 
+BYPASS_AUTH = True  # TODO: set to False when auth is ready
+
 @router.get("/")
 def home(request: Request):
-    if not request.session.get("is_verified"):
+    if not BYPASS_AUTH and not request.session.get("is_verified"):
         return RedirectResponse(url="/app2/login", status_code=status.HTTP_303_SEE_OTHER)
     return templates.TemplateResponse("home.html", {"request": request})
