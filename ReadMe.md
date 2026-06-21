@@ -11,6 +11,9 @@
 ![VLM](https://img.shields.io/badge/VLM-Research_Assistant-8B5CF6?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-success?style=for-the-badge)
 
+<img width="1013" height="490" alt="Screenshot 2026-06-14 073332" src="https://github.com/user-attachments/assets/4b94bf20-601e-40de-9eb0-07cee1f825f0" />
+
+
 Autonomous AI Research Agent for exploring, indexing, retrieving, and reasoning over academic papers using Retrieval-Augmented Generation (RAG).
 
 # Aclyon Research Agent
@@ -40,6 +43,7 @@ Aclyon follows a Retrieval-Augmented Generation (RAG) architecture. Research pap
 
 The frontend is built using HTML, CSS, and JavaScript, while FastAPI serves as the backend framework. SQLite manages metadata and user information, and Pinecone provides scalable vector search capabilities.
 
+<img width="1036" height="508" alt="Screenshot 2026-06-13 113155" src="https://github.com/user-attachments/assets/5c5eb8fe-04cf-4a6b-bf34-f849d68e9381" />
 
 
 
