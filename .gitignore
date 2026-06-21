@@ -8,8 +8,7 @@ venv/
 # Models
 models/
 
-# Data
-Data/
+
 
 # IDE
 .vscode/
