@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aclyon M4 — Autonomous Research Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,300&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #07070A;
+  --bg2:      #0C0C10;
+  --bg3:      #111116;
+  --a1:       #5B8CFF;
+  --a2:       #7AA2FF;
+  --a3:       #A5BFFF;
+  --t0:       #FFFFFF;
+  --t1:       #B7BCC7;
+  --t2:       #6E7380;
+  --gb:       rgba(255,255,255,0.04);
+  --gbd:      rgba(255,255,255,0.06);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--t0);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 56px;
+  background: rgba(7,7,10,0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.n-logo { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; color:#fff; text-decoration:none; }
+.n-logo b { color: var(--a1); font-weight:600; }
+.n-links { display:flex; gap:32px; list-style:none; }
+.n-links a { font-size:14px; color:var(--t2); text-decoration:none; transition:color .2s; font-weight:400; }
+.n-links a:hover { color:#fff; }
+.n-btn {
+  font-size:13px; font-weight:500;
+  padding: 8px 20px;
+  border-radius: 8px;
+  background: var(--a1);
+  color: #fff;
+  border: none; cursor: pointer; text-decoration: none;
+  transition: opacity .2s, transform .15s;
+}
+.n-btn:hover { opacity:.85; transform:translateY(-1px); }
+
+/* ─── HERO — FULL BLEED IMAGE, TEXT ON TOP ─── */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 700px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 0 100px 0;
+  overflow: hidden;
+}
+.hero-img {
+  position: absolute;
+  inset: 0;
+  width: 90%; height: 90%;
+  margin-top: 80px;
+  margin-left: 70px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  z-index: 0;
+}
+/* Only a very gentle darkening at the very bottom so text reads — no colour overlay */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.10) 0%,
+    rgba(0,0,0,0.10) 55%,
+    rgba(7,7,10,0.70) 85%,
+    rgba(7,7,10,1.00) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 0 0 80px;
+  text-align: left;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  backdrop-filter: blur(8px);
+  background: rgba(255,255,255,0.06);
+}
+.badge-pulse {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #fff;
+  animation: bpulse 2.2s ease-in-out infinite;
+}
+@keyframes bpulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+.hero h1 {
+  font-size: clamp(44px, 5vw, 70px);
+  font-weight: 300;
+  line-height: 1.08;
+  letter-spacing: -2.2px;
+  color: #ffffff;
+  margin-bottom: 24px;
+}
+
+.hero h1 strong {
+  font-weight: 500;
+  color: #fff;
+}
+
+.hero-sub {
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.72);
+  max-width: 620px;
+  margin-bottom: 42px;
+  letter-spacing: 0.01em;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-start;
+  margin-bottom: 60px;
+}
+
+.btn-w {
+  font-size: 18px;
+  font-weight: 500;
+  padding: 18px 36px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.95);
+  color: #0a0a0f;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: background .2s, transform .15s;
+}
+
+.btn-w:hover {
+  background: #fff;
+  transform: translateY(-2px);
+}
+
+.btn-ghost {
+  font-size: 18px;
+  font-weight: 400;
+  padding: 18px 36px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255,255,255,0.18);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  backdrop-filter: blur(12px);
+  transition: background .2s, transform .15s;
+}
+
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.14);
+  transform: translateY(-2px);
+}
+
+.trust-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.trust-sep {
+  font-size: 14px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.trust-pill {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.55);
+  padding: 8px 18px;
+  border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(10px);
+}
+/* ─── METRICS STRIP ─── */
+.metrics {
+  background: var(--bg2);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 56px 80px;
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 20px;
+}
+.met { text-align:center; }
+.met-val {
+  font-size: 44px; font-weight: 700; letter-spacing: -2px;
+  color: #fff; margin-bottom: 8px;
+}
+.met-val span { color: var(--a1); }
+.met-lbl { font-size: 13px; color: var(--t2); line-height:1.5; }
+
+/* ─── SECTION SHELL ─── */
+.sec { padding: 120px 80px; position:relative; }
+.sec-bg2 { background: var(--bg2); }
+.sec-bg3 { background: var(--bg3); }
+
+/* glow blobs for AIVERA-style sections */
+.blob {
+  position:absolute; border-radius:50%; filter:blur(120px);
+  pointer-events:none; z-index:0;
+}
+.blob-blue { background: rgba(91,140,255,0.12); }
+.blob-violet { background: rgba(130,80,255,0.09); }
+
+.sec-inner { position:relative; z-index:1; }
+
+.eyebrow {
+  font-size: 11px; font-weight:600; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--a1); margin-bottom:16px;
+  display:block;
+}
+.sec-title {
+  font-size: clamp(34px,4.5vw,56px); font-weight:700;
+  letter-spacing:-1.8px; line-height:1.1; color:#fff; margin-bottom:18px;
+}
+.sec-sub {
+  font-size:17px; color:var(--t1); line-height:1.75;
+  max-width:520px; font-weight:300;
+}
+
+/* ─── CAPS GRID ─── */
+.cap-grid {
+  display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:64px;
+}
+.cap-card {
+  background: var(--gb);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 24px; padding:40px;
+  transition: all .35s ease;
+  position:relative; overflow:hidden;
+}
+.cap-card::before {
+  content:''; position:absolute; top:0;left:0;right:0; height:1px;
+  background: linear-gradient(90deg,transparent,rgba(91,140,255,.35),transparent);
+  opacity:0; transition:opacity .35s;
+}
+.cap-card:hover { border-color:rgba(91,140,255,.22); background:rgba(91,140,255,.05); transform:translateY(-4px); }
+.cap-card:hover::before { opacity:1; }
+.cap-ic {
+  width:46px;height:46px; border-radius:13px;
+  background:rgba(91,140,255,.1); border:1px solid rgba(91,140,255,.2);
+  display:flex;align-items:center;justify-content:center; margin-bottom:26px;
+}
+.cap-ic svg { width:22px;height:22px;stroke:var(--a2);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round; }
+.cap-card h3 { font-size:20px;font-weight:600;color:#fff;margin-bottom:12px;letter-spacing:-.4px; }
+.cap-card p  { font-size:15px;color:var(--t1);line-height:1.7; }
+
+/* ─── HOW ─── */
+.how-row {
+  display:grid; grid-template-columns:repeat(5,1fr); gap:0; margin-top:80px;
+  position:relative;
+}
+.how-row::before {
+  content:''; position:absolute; top:27px; left:10%; right:10%; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(91,140,255,.3) 20%,rgba(91,140,255,.3) 80%,transparent);
+}
+.how-step { display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 16px; }
+.how-num {
+  width:54px;height:54px; border-radius:50%;
+  border:1px solid rgba(91,140,255,.3);
+  background:var(--bg2); display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;color:var(--a2);
+  margin-bottom:24px; position:relative;z-index:1;
+  transition: border-color .3s, background .3s;
+}
+.how-step:hover .how-num { border-color:var(--a1); background:rgba(91,140,255,.1); }
+.how-lbl { font-size:15px;font-weight:600;color:#fff;margin-bottom:8px;letter-spacing:-.3px; }
+.how-desc { font-size:13px;color:var(--t2);line-height:1.6; }
+
+/* ─── ARCH ─── */
+.arch-row {
+  display:flex; align-items:stretch; gap:0; margin-top:72px; width:100%;
+}
+.arch-card {
+  flex:1; background:var(--gb); border:1px solid rgba(255,255,255,.07);
+  border-radius:20px; padding:30px 22px; text-align:center;
+  transition:all .3s; position:relative;
+}
+.arch-card:not(:last-child)::after {
+  content:'';
+  position:absolute; top:50%; right:-18px;
+  width:36px; height:1px;
+  background:linear-gradient(90deg,rgba(91,140,255,.4),rgba(91,140,255,.1));
+  z-index:2;
+}
+.arch-card:hover { border-color:rgba(91,140,255,.22); background:rgba(91,140,255,.04); transform:translateY(-4px); }
+.arch-ic {
+  width:48px;height:48px;border-radius:14px;
+  background:rgba(91,140,255,.09);border:1px solid rgba(91,140,255,.15);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+}
+.arch-ic svg { width:22px;height:22px;stroke:var(--a2);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round; }
+.arch-tag { font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--a1);margin-bottom:6px; }
+.arch-name { font-size:15px;font-weight:600;color:#fff;margin-bottom:6px;letter-spacing:-.3px; }
+.arch-desc { font-size:12px;color:var(--t2);line-height:1.55;margin-bottom:14px; }
+.arch-chip {
+  display:inline-block;font-size:10px;font-weight:500;
+  padding:3px 9px;border-radius:6px;
+  background:rgba(91,140,255,.08);border:1px solid rgba(91,140,255,.15);
+  color:var(--a3);
+}
+
+/* ─── WORKSPACE ─── */
+.ws-frame {
+  margin-top:64px;
+  border-radius:24px; overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+  background:#0A0A0E;
+  box-shadow:0 48px 96px rgba(0,0,0,.55), 0 0 0 1px rgba(91,140,255,.04);
+}
+.ws-bar {
+  height:40px;background:#080810;border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;padding:0 16px;gap:8px;
+}
+.wd { width:12px;height:12px;border-radius:50%; }
+.wd.r{background:#FF5F57;} .wd.y{background:#FEBC2E;} .wd.g{background:#28C840;}
+.ws-bar-lbl { flex:1;text-align:center;font-size:12px;color:var(--t2);font-weight:500; }
+.ws-body { display:grid;grid-template-columns:250px 1fr 320px;height:520px; }
+
+.ws-sidebar {
+  background:#080810;border-right:1px solid rgba(255,255,255,.06);
+  padding:16px;overflow:hidden;
+}
+.ws-s-title { font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--t2);padding:0 4px;margin-bottom:12px; }
+.ws-search {
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  border-radius:8px;padding:8px 12px;font-size:12px;color:var(--t2);
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.pi { padding:9px 8px;border-radius:8px;margin-bottom:3px;cursor:pointer;transition:background .15s; }
+.pi:hover,.pi.on { background:rgba(91,140,255,.09); }
+.pi-t { font-size:12px;color:#fff;font-weight:500;line-height:1.35;margin-bottom:3px; }
+.pi-m { font-size:11px;color:var(--t2);display:flex;gap:6px; }
+.pi-m s2 { background:rgba(91,140,255,.1);border-radius:4px;padding:1px 6px;color:var(--a3);font-weight:500;font-style:normal; }
+
+.ws-viewer { background:var(--bg2);padding:24px;overflow:hidden; }
+.vp-hdr { border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:14px;margin-bottom:18px; }
+.vp-title { font-size:15px;font-weight:600;color:#fff;letter-spacing:-.3px;margin-bottom:5px;line-height:1.3; }
+.vp-meta { font-size:11px;color:var(--t2); }
+.vp-el { font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--a1);margin-bottom:9px; }
+.vp-abs { font-size:13px;color:var(--t1);line-height:1.75;margin-bottom:20px; }
+.chunk {
+  background:rgba(91,140,255,.07);border-left:2px solid var(--a1);
+  border-radius:0 8px 8px 0;padding:10px 14px;
+  font-size:12px;color:var(--t1);line-height:1.65;margin-bottom:10px;position:relative;
+}
+.chunk::before {
+  content:'Retrieved'; position:absolute;top:-7px;left:10px;
+  font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--a1);background:var(--bg2);padding:0 5px;
+}
+
+.ws-chat { background:#080810;border-left:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column; }
+.chat-hdr {
+  padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;gap:9px;
+}
+.chat-dot { width:7px;height:7px;border-radius:50%;background:#22C55E; }
+.chat-hdr-lbl { font-size:13px;font-weight:600;color:#fff; }
+.chat-msgs { flex:1;padding:14px 16px;overflow:hidden;display:flex;flex-direction:column;gap:14px; }
+.cm { display:flex;flex-direction:column;gap:5px; }
+.cm-who { font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--t2); }
+.cm-b { font-size:12px;line-height:1.6;border-radius:10px;padding:9px 12px; }
+.cm.u .cm-b { background:rgba(91,140,255,.1);color:var(--t1); }
+.cm.a .cm-b { background:rgba(255,255,255,.04);color:var(--t1); }
+.cit {
+  display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;
+  background:rgba(91,140,255,.09);border:1px solid rgba(91,140,255,.18);
+  border-radius:5px;padding:2px 7px;color:var(--a3);margin-top:4px;
+}
+.chat-inp { padding:14px 16px;border-top:1px solid rgba(255,255,255,.06); }
+.chat-inp-box {
+  width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;padding:9px 12px;font-size:12px;color:var(--t2);
+  font-family:inherit;
+}
+
+/* ─── QUOTE INTERLUDE ─── */
+.quote-sec {
+  padding:100px 80px; background:var(--bg); text-align:center; position:relative; overflow:hidden;
+}
+.quote-blob1 { width:600px;height:300px;top:-80px;left:50%;transform:translateX(-50%); }
+.q-mark { font-size:72px;color:var(--a1);opacity:.2;line-height:1;margin-bottom:-20px; }
+.q-text {
+  font-size:clamp(22px,3vw,36px);font-weight:300;letter-spacing:-.8px;
+  line-height:1.45;color:#fff;max-width:740px;margin:0 auto;
+}
+.q-text em { font-style:normal;color:var(--a2); }
+
+/* ─── FOOTER ─── */
+footer {
+  background:var(--bg);
+  border-top:1px solid rgba(255,255,255,.05);
+  padding:72px 80px 48px;
+}
+.ft-top { display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-bottom:60px; }
+.ft-logo { font-size:22px;font-weight:600;letter-spacing:-.3px;color:#fff;margin-bottom:8px; }
+.ft-logo b { color:var(--a1); }
+.ft-tag { font-size:14px;color:var(--t2); }
+.ft-links { display:grid;grid-template-columns:1fr 1fr;gap:40px; }
+.ft-col h5 { font-size:12px;font-weight:600;color:#fff;letter-spacing:.02em;margin-bottom:18px; }
+.ft-col a { display:block;font-size:14px;color:var(--t2);text-decoration:none;margin-bottom:10px;transition:color .2s; }
+.ft-col a:hover { color:#fff; }
+.ft-btm { border-top:1px solid rgba(255,255,255,.05);padding-top:28px;display:flex;align-items:center;justify-content:space-between; }
+.ft-copy { font-size:13px;color:var(--t2);line-height:1.6; }
+.ft-policy { display:flex;gap:24px; }
+.ft-policy a { font-size:13px;color:var(--t2);text-decoration:none;transition:color .2s; }
+.ft-policy a:hover { color:#fff; }
+
+/* ─── SCROLL ANIMS ─── */
+.fu { opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease; }
+.fu.vis { opacity:1;transform:translateY(0); }
+.d1{transition-delay:.08s} .d2{transition-delay:.16s} .d3{transition-delay:.24s}
+.d4{transition-delay:.32s} .d5{transition-delay:.40s}
+
+/* ─── HEX CANVAS ─── */
+#hex-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 55%; height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.72;
+}
+
+@media(max-width:1100px){
+  nav{padding:0 24px;} .n-links{display:none;}
+  .hero h1{font-size:32px;letter-spacing:-1px;}
+  .hero-content{margin:0 0 0 32px;}
+  .metrics{grid-template-columns:repeat(2,1fr);padding:48px 40px;}
+  .sec{padding:80px 40px;}
+  .cap-grid{grid-template-columns:1fr;}
+  .how-row{grid-template-columns:1fr;gap:32px;} .how-row::before{display:none;}
+  .arch-row{flex-direction:column;} .arch-card::after{display:none;}
+  .ws-body{grid-template-columns:1fr;height:auto;}
+  .ws-sidebar,.ws-chat{display:none;}
+  footer{padding:60px 40px 40px;}
+  .ft-top{grid-template-columns:1fr;gap:40px;}
+  .quote-sec{padding:72px 40px;}
+}
+
+
+
+
+  #pg-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: #07070A;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity .4s ease, visibility .4s ease;
+    }
+    #pg-loader.hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .pl-brand {
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+    .pl-brand span { color: #22D3EE; }
+    .pl-ring {
+      width: 36px;
+      height: 36px;
+      border: 2.5px solid rgba(255,255,255,0.08);
+      border-top-color: #22D3EE;
+      border-radius: 50%;
+      animation: pl-spin .75s linear infinite;
+    }
+    .pl-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .pl-dots span {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #3A3D45;
+      animation: pl-pulse 1.2s ease-in-out infinite;
+    }
+    .pl-dots span:nth-child(2) { animation-delay: .2s; }
+    .pl-dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes pl-spin  { to { transform: rotate(360deg); } }
+    @keyframes pl-pulse { 0%,100% { background:#3A3D45; } 50% { background:#22D3EE; } }
+
+
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+  <div id="pg-loader">
+    <div class="pl-brand">Aclyon <span>M4</span></div>
+    <div class="pl-ring"></div>
+    <div class="pl-dots"><span></span><span></span><span></span></div>
+  </div>
+    <script>
+    (function () {
+      var loader = document.getElementById('pg-loader');
+      function hide() { loader.classList.add('hide'); }
+      // Hide after everything (images, fonts, scripts) is fully loaded
+      if (document.readyState === 'complete') { setTimeout(hide, 150); }
+      else { window.addEventListener('load', function () { setTimeout(hide, 150); }); }
+    })();
+  </script>
+  
+<nav>
+  <a href="#" class="n-logo">Aclyon<b>M4</b></a>
+  <ul class="n-links">
+    <li><a href="#caps">Features</a></li>
+    <li><a href="#arch">Architecture</a></li>
+    <li><a href="#ws">Workspace</a></li>
+    <li><a href="#">Docs</a></li>
+    <li><a href="#">GitHub</a></li>
+  </ul>
+  <a href="#" class="n-btn">Start Researching</a>
+</nav>
+
+<!-- ─── HERO — IMAGE IS THE BACKGROUND, TEXT DIRECTLY ON IT ─── -->
+<section class="hero">
+  <img class="hero-img" src="https://i.postimg.cc/cCSBjRpz/Chat-GPT-Image-Jun-14-2026-06-46-15-AM.png" alt="">
+  <canvas id="hex-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="badge-pulse"></div>
+      Autonomous Research Intelligence
+    </div>
+    <h1>Research <span style="color: #5B8CFF;">Papers</span>,<br><strong>Understood by AI.</strong></h1>
+    <p class="hero-sub">Aclyon transforms academic literature into a searchable knowledge workspace using hybrid retrieval, reasoning agents, and grounded AI responses.</p>
+    <div class="hero-btns">
+ <a href="/app3/" class="btn-w" id="navApp3">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="5 3 19 12 5 21 5 3"/>
+  </svg>
+  Start Researching
+</a>
+      <a href="#arch" class="btn-ghost">
+        View Architecture
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+    <div class="trust-row">
+      <span class="trust-sep">Powered by</span>
+      <span class="trust-pill">FastAPI</span>
+      <span class="trust-pill">LangGraph</span>
+      <span class="trust-pill">Pinecone</span>
+      <span class="trust-pill">Qwen</span>
+      <span class="trust-pill">BGE Embeddings</span>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<div class="metrics fu">
+  <div class="met">
+    <div class="met-val"><span>50</span>ms</div>
+    <div class="met-lbl">Avg retrieval latency</div>
+  </div>
+  <div class="met">
+    <div class="met-val"><span>10M</span>+</div>
+    <div class="met-lbl">Embeddings stored</div>
+  </div>
+  <div class="met">
+    <div class="met-val"><span>94</span>%</div>
+    <div class="met-lbl">Answer grounding score</div>
+  </div>
+  <div class="met">
+    <div class="met-val"><span>12k</span>+</div>
+    <div class="met-lbl">Papers indexed</div>
+  </div>
+</div>
+
+<!-- ─── CAPABILITIES ─── -->
+<section id="caps" class="sec sec-bg2" style="overflow:hidden;">
+  <!-- glow blobs AIVERA style -->
+  <div class="blob blob-blue" style="width:500px;height:500px;top:-120px;right:-80px;"></div>
+  <div class="blob blob-violet" style="width:400px;height:400px;bottom:-100px;left:-60px;"></div>
+  <div class="sec-inner">
+    <div class="fu">
+      <span class="eyebrow">Capabilities</span>
+      <h2 class="sec-title">Everything Needed<br>for Modern Research</h2>
+      <p class="sec-sub">From ingestion to insight — Aclyon handles the full research pipeline so you can focus on discovery.</p>
+    </div>
+    <div class="cap-grid">
+      <div class="cap-card fu d1">
+        <div class="cap-ic">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
+        <h3>Semantic Retrieval</h3>
+        <p>Search thousands of papers using hybrid vector and keyword search. BGE embeddings capture contextual meaning; BM25 ensures exact-match precision — both combined and reranked in real time.</p>
+      </div>
+      <div class="cap-card fu d2">
+        <div class="cap-ic">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>AI Research Assistant</h3>
+        <p>Ask natural language questions and receive grounded, evidence-backed answers. The Qwen reasoning engine synthesizes retrieved passages into coherent, citation-linked responses.</p>
+      </div>
+      <div class="cap-card fu d3">
+        <div class="cap-ic">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <h3>Paper Comparison</h3>
+        <p>Structured side-by-side analysis of methodologies, datasets, limitations, and findings across multiple papers. Understand consensus, disagreements, and research gaps instantly.</p>
+      </div>
+      <div class="cap-card fu d4">
+        <div class="cap-ic">
+          <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+        </div>
+        <h3>Evidence-Based Responses</h3>
+        <p>Every answer is anchored to retrieved research. Citations are surfaced inline, with passage-level provenance so you can verify claims and follow sources directly into the literature.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ─── -->
+<section id="how" class="sec" style="overflow:hidden;">
+  <div class="blob blob-blue" style="width:600px;height:300px;top:0;left:50%;transform:translateX(-50%);"></div>
+  <div class="sec-inner">
+    <div class="fu" style="text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <span class="eyebrow">Process</span>
+      <h2 class="sec-title">From PDF to Research Insight</h2>
+      <p class="sec-sub" style="text-align:center;max-width:480px;">A multi-stage agent pipeline that ingests raw papers and surfaces precise, grounded intelligence.</p>
+    </div>
+    <div class="how-row">
+      <div class="how-step fu d1">
+        <div class="how-num">01</div>
+        <div class="how-lbl">Upload Papers</div>
+        <div class="how-desc">Drag in PDFs, arXiv links, or DOIs. Aclyon handles parsing, structure extraction, and metadata.</div>
+      </div>
+      <div class="how-step fu d2">
+        <div class="how-num">02</div>
+        <div class="how-lbl">Index & Embed</div>
+        <div class="how-desc">Sections are chunked intelligently and embedded via BGE into a high-dimensional vector space.</div>
+      </div>
+      <div class="how-step fu d3">
+        <div class="how-num">03</div>
+        <div class="how-lbl">Retrieve Evidence</div>
+        <div class="how-desc">Hybrid retrieval combines dense semantic vectors with sparse BM25 for full coverage.</div>
+      </div>
+      <div class="how-step fu d4">
+        <div class="how-num">04</div>
+        <div class="how-lbl">Rerank Results</div>
+        <div class="how-desc">A cross-encoder reranker scores passages for relevance and filters noise before the LLM.</div>
+      </div>
+      <div class="how-step fu d5">
+        <div class="how-num">05</div>
+        <div class="how-lbl">Generate Answer</div>
+        <div class="how-desc">Qwen reasons over the evidence and generates a grounded, citation-linked response.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ARCHITECTURE ─── -->
+<section id="arch" class="sec sec-bg2" style="overflow:hidden;">
+  <div class="blob blob-violet" style="width:500px;height:400px;top:-100px;right:-100px;"></div>
+  <div class="blob blob-blue" style="width:400px;height:300px;bottom:-80px;left:-60px;"></div>
+  <div class="sec-inner">
+    <div class="fu">
+      <span class="eyebrow">Architecture</span>
+      <h2 class="sec-title">Built for Serious<br>Research Workflows</h2>
+      <p class="sec-sub">A production-grade stack designed for reliability, composability, and research-grade precision.</p>
+    </div>
+    <div class="arch-row fu d1" style="margin-top:72px;gap:16px;">
+      <div class="arch-card">
+        <div class="arch-ic">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div class="arch-tag">Client</div>
+        <div class="arch-name">Frontend</div>
+        <div class="arch-desc">React workspace with paper library, PDF viewer, and AI copilot panel</div>
+        <span class="arch-chip">React · TypeScript</span>
+      </div>
+      <div class="arch-card">
+        <div class="arch-ic">
+          <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <div class="arch-tag">API Layer</div>
+        <div class="arch-name">FastAPI</div>
+        <div class="arch-desc">Async REST + WebSocket server for ingestion, search, and streaming responses</div>
+        <span class="arch-chip">FastAPI · Python</span>
+      </div>
+      <div class="arch-card">
+        <div class="arch-ic">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        </div>
+        <div class="arch-tag">Orchestration</div>
+        <div class="arch-name">LangGraph</div>
+        <div class="arch-desc">Multi-step reasoning graph with retrieval, reranking, and generation nodes</div>
+        <span class="arch-chip">LangGraph · LangChain</span>
+      </div>
+      <div class="arch-card">
+        <div class="arch-ic">
+          <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4.03 3-9 3S3 13.66 3 12"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/></svg>
+        </div>
+        <div class="arch-tag">Vector Store</div>
+        <div class="arch-name">Pinecone</div>
+        <div class="arch-desc">Serverless vector DB hosting BGE embeddings with metadata-filtered retrieval</div>
+        <span class="arch-chip">Pinecone · BGE</span>
+      </div>
+      <div class="arch-card">
+        <div class="arch-ic">
+          <svg viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1M3 12h1M20 12h1M5.636 5.636l.707.707M18.364 5.636l-.707.707"/><circle cx="12" cy="12" r="4"/></svg>
+        </div>
+        <div class="arch-tag">Reasoning</div>
+        <div class="arch-name">Qwen Engine</div>
+        <div class="arch-desc">LLM providing multi-step reasoning, synthesis, and citation generation</div>
+        <span class="arch-chip">Qwen2.5 · GGUF</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="quote-sec">
+  <div class="blob blob-blue quote-blob1" style="position:absolute;"></div>
+  <div style="position:relative;z-index:1;">
+    <div class="q-mark">&ldquo;</div>
+    <p class="q-text fu">Research used to mean <em>hours of reading</em> before finding a single relevant claim. Aclyon collapses that into seconds, without sacrificing grounding or precision.</p>
+  </div>
+</section>
+
+<!-- ─── WORKSPACE ─── -->
+<section id="ws" class="sec sec-bg3" style="overflow:hidden;">
+  <div class="blob blob-blue" style="width:400px;height:300px;top:-60px;right:0;"></div>
+  <div class="sec-inner">
+    <div class="fu">
+      <span class="eyebrow">Workspace</span>
+      <h2 class="sec-title">A Complete Research<br>Environment</h2>
+      <p class="sec-sub">Paper library, reading view, and AI copilot working together in a single unified interface.</p>
+    </div>
+    <div class="ws-frame fu d1">
+      <div class="ws-bar">
+        <div class="wd r"></div><div class="wd y"></div><div class="wd g"></div>
+        <div class="ws-bar-lbl">Aclyon M4 — Research Workspace</div>
+      </div>
+      <div class="ws-body">
+        <div class="ws-sidebar">
+          <div class="ws-s-title">Paper Library</div>
+          <div class="ws-search">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Search papers...
+          </div>
+          <div class="pi on">
+            <div class="pi-t">Attention Is All You Need</div>
+            <div class="pi-m">Vaswani et al. <s2>2017</s2></div>
+          </div>
+          <div class="pi">
+            <div class="pi-t">BERT: Pre-training of Deep Bidirectional Transformers</div>
+            <div class="pi-m">Devlin et al. <s2>2018</s2></div>
+          </div>
+          <div class="pi">
+            <div class="pi-t">Chain-of-Thought Prompting Elicits Reasoning in LLMs</div>
+            <div class="pi-m">Wei et al. <s2>2022</s2></div>
+          </div>
+          <div class="pi">
+            <div class="pi-t">RAG for Knowledge-Intensive NLP Tasks</div>
+            <div class="pi-m">Lewis et al. <s2>2020</s2></div>
+          </div>
+          <div class="pi">
+            <div class="pi-t">LLaMA: Open and Efficient Foundation Language Models</div>
+            <div class="pi-m">Touvron et al. <s2>2023</s2></div>
+          </div>
+        </div>
+        <div class="ws-viewer">
+          <div class="vp-hdr">
+            <div class="vp-title">Attention Is All You Need</div>
+            <div class="vp-meta">Vaswani, A. · Shazeer, N. · Parmar, N. · et al. · NeurIPS 2017</div>
+          </div>
+          <div class="vp-el">Abstract</div>
+          <div class="vp-abs">The dominant sequence transduction models are based on complex recurrent or convolutional neural networks. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality...</div>
+          <div class="chunk">The Transformer uses multi-head attention in three different ways. Queries come from the previous decoder layer, and the memory keys and values come from the output of the encoder.</div>
+          <div class="chunk" style="border-left-color:rgba(165,191,255,.5);background:rgba(165,191,255,.04);">We obtained 41.0 BLEU on the WMT 2014 English-to-French translation task, outperforming all previously published single models at less than 1/4 the training cost.</div>
+        </div>
+        <div class="ws-chat">
+          <div class="chat-hdr">
+            <div class="chat-dot"></div>
+            <div class="chat-hdr-lbl">AI Copilot</div>
+          </div>
+          <div class="chat-msgs">
+            <div class="cm u">
+              <div class="cm-who">You</div>
+              <div class="cm-b">What problem does the Transformer solve vs RNNs?</div>
+            </div>
+            <div class="cm a">
+              <div class="cm-who">Aclyon M4</div>
+              <div class="cm-b">The Transformer addresses two key RNN limitations: sequential computation blocks parallelization, and long-range dependencies decay. Self-attention relates all positions in O(1) operations regardless of distance.</div>
+              <div class="cit">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+                Vaswani et al. 2017 · §3.2
+              </div>
+            </div>
+            <div class="cm u">
+              <div class="cm-who">You</div>
+              <div class="cm-b">How does this compare to BERT's approach?</div>
+            </div>
+            <div class="cm a">
+              <div class="cm-who">Aclyon M4</div>
+              <div class="cm-b">BERT uses only the Transformer encoder bidirectionally, while the original paper uses encoder-decoder for seq2seq. BERT pre-trains on masked language modeling rather than translation objectives...</div>
+              <div class="cit">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+                Devlin et al. 2018 · §3.1
+              </div>
+            </div>
+          </div>
+          <div class="chat-inp">
+            <div class="chat-inp-box">Ask anything about these papers...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-top">
+    <div>
+      <div class="ft-logo">Aclyon<b>M4</b></div>
+      <div class="ft-tag">Autonomous Research Intelligence</div>
+    </div>
+    <div class="ft-links">
+      <div class="ft-col">
+        <h5>Product</h5>
+        <a href="#">Features</a>
+        <a href="#">Architecture</a>
+        <a href="#">Documentation</a>
+        <a href="#">GitHub</a>
+      </div>
+      <div class="ft-col">
+        <h5>Research</h5>
+        <a href="#">arXiv Integration</a>
+        <a href="#">API Reference</a>
+        <a href="#">Benchmarks</a>
+      </div>
+    </div>
+  </div>
+  <div class="ft-btm">
+    <div class="ft-copy">© 2026 Aclyon M4.<br>Built for researchers, engineers, and scientific discovery.</div>
+    <div class="ft-policy">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const canvas = document.getElementById('hex-canvas');
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width  = Math.floor(rect.width * 0.55 * devicePixelRatio);
+    canvas.height = Math.floor(rect.height * devicePixelRatio);
+    canvas.style.width  = Math.floor(rect.width * 0.55) + 'px';
+    canvas.style.height = rect.height + 'px';
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // ── Shaders ──
+  const vsrc = `
+    attribute vec2 a_pos;
+    attribute float a_alpha;
+    uniform vec2 u_res;
+    varying float v_alpha;
+    void main(){
+      vec2 clip = (a_pos / u_res) * 2.0 - 1.0;
+      gl_Position = vec4(clip.x, -clip.y, 0.0, 1.0);
+      gl_PointSize = a_alpha * 4.0 + 1.5;
+      v_alpha = a_alpha;
+    }
+  `;
+  const fsrc = `
+    precision mediump float;
+    uniform vec4 u_color;
+    varying float v_alpha;
+    void main(){
+      vec2 c = gl_PointCoord - 0.5;
+      float d = dot(c,c);
+      if(d > 0.25) discard;
+      float soft = 1.0 - smoothstep(0.18, 0.25, d);
+      gl_FragColor = vec4(u_color.rgb, u_color.a * v_alpha * soft);
+    }
+  `;
+
+  function compile(type, src){
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, vsrc));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fsrc));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+
+  const aPos   = gl.getAttribLocation(prog, 'a_pos');
+  const aAlpha = gl.getAttribLocation(prog, 'a_alpha');
+  const uRes   = gl.getUniformLocation(prog, 'u_res');
+  const uColor = gl.getUniformLocation(prog, 'u_color');
+
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+  // ── Hex grid nodes ──
+  // Hexagons with a slight tilt — pointy-top orientation
+  const HEX_SIZE  = 68;   // distance between hex centres
+  const COLS = 14, ROWS = 14;
+  const NODES = [];
+
+  const W3 = Math.sqrt(3);
+  for(let r = -1; r < ROWS + 1; r++){
+    for(let c = -1; c < COLS + 1; c++){
+      const x = HEX_SIZE * W3 * (c + 0.5 * (r & 1));
+      const y = HEX_SIZE * 1.5 * r;
+      // phase offset per node for breathing animation
+      const phase = (c * 1.3 + r * 2.1) % (Math.PI * 2);
+      const speed = 0.35 + Math.random() * 0.3;
+      NODES.push({ x, y, phase, speed, baseAlpha: 0.35 + Math.random() * 0.45 });
+    }
+  }
+
+  // ── Edges: connect each node to its 6 hex neighbours ──
+  // Directions for pointy-top hex (even row)
+  const DIR_EVEN = [[1,0],[-1,0],[0,1],[0,-1],[1,-1],[-1,-1]];
+  const DIR_ODD  = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1]];
+
+  function nodeIdx(c,r){ return r * (COLS+2) + c + (COLS+2); }
+
+  const EDGES = [];
+  for(let r = 0; r < ROWS; r++){
+    for(let c = 0; c < COLS; c++){
+      const dirs = (r & 1) ? DIR_ODD : DIR_EVEN;
+      const idx  = nodeIdx(c, r);
+      dirs.forEach(([dc, dr]) => {
+        const nc = c + dc, nr = r + dr;
+        if(nc >= 0 && nc < COLS && nr >= 0 && nr < ROWS){
+          const nidx = nodeIdx(nc, nr);
+          if(nidx > idx) EDGES.push([idx, nidx]);
+        }
+      });
+    }
+  }
+
+  // ── Buffers ──
+  const posBuf   = gl.createBuffer();
+  const alphaBuf = gl.createBuffer();
+  const linePB   = gl.createBuffer();
+  const lineAB   = gl.createBuffer();
+
+  let t = 0;
+
+  function frame(){
+    requestAnimationFrame(frame);
+    t += 0.012;
+
+    const W = canvas.width, H = canvas.height;
+    gl.clearColor(0,0,0,0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // update alphas
+    NODES.forEach(n => {
+      n.alpha = n.baseAlpha * (0.5 + 0.5 * Math.sin(t * n.speed + n.phase));
+    });
+
+    // ── Draw edges ──
+    const lPos = []; const lAlp = [];
+    EDGES.forEach(([i,j]) => {
+      const a = NODES[i], b = NODES[j];
+      const ea = (a.alpha + b.alpha) * 0.4;
+      lPos.push(a.x, a.y, b.x, b.y);
+      lAlp.push(ea, ea);
+    });
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, linePB);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lPos), gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, lineAB);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lAlp), gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(aAlpha);
+    gl.vertexAttribPointer(aAlpha, 1, gl.FLOAT, false, 0, 0);
+
+    gl.uniform2f(uRes, W, H);
+    // Accent blue edge colour
+    gl.uniform4f(uColor, 0.36, 0.55, 1.0, 0.55);
+    gl.drawArrays(gl.LINES, 0, lPos.length / 2);
+
+    // ── Draw nodes ──
+    const nPos = []; const nAlp = [];
+    NODES.forEach(n => {
+      nPos.push(n.x, n.y);
+      nAlp.push(n.alpha);
+    });
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nPos), gl.DYNAMIC_DRAW);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, alphaBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nAlp), gl.DYNAMIC_DRAW);
+    gl.vertexAttribPointer(aAlpha, 1, gl.FLOAT, false, 0, 0);
+
+    // Node accent color — slightly lighter blue-white
+    gl.uniform4f(uColor, 0.65, 0.78, 1.0, 0.9);
+    gl.drawArrays(gl.POINTS, 0, NODES.length);
+  }
+
+  frame();
+})();
+</script>
+
+<script>
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.fu').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

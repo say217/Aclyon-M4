@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aclyon — Create Account</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:   #07070A;
+            --bg2:  #0C0C10;
+            --bg3:  #111116;
+            --a1:   #5B8CFF;
+            --a2:   #7AA2FF;
+            --a3:   #A5BFFF;
+            --cyan: #22D3EE;
+            --t0:   #FFFFFF;
+            --t1:   #B7BCC7;
+            --t2:   #6E7380;
+            --gbd:  rgba(255,255,255,0.06);
+            --err:  #FF5B5B;
+            --err-bg: rgba(255,91,91,0.08);
+            --err-border: rgba(255,91,91,0.2);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--t0);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(34,211,238,0.05) 0%, transparent 70%);
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .brand-name {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            color: var(--t0);
+        }
+
+        .brand-name span {
+            color: var(--cyan);
+        }
+
+        .card {
+            width: 100%;
+            background: var(--bg2);
+            border: 1px solid var(--gbd);
+            border-radius: 16px;
+            padding: 36px 32px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--t0);
+            letter-spacing: -0.4px;
+            margin-bottom: 4px;
+        }
+
+        .card-sub {
+            font-size: 13px;
+            color: var(--t2);
+            margin-bottom: 24px;
+        }
+
+        .error-msg {
+            background: var(--err-bg);
+            border: 1px solid var(--err-border);
+            color: var(--err);
+            padding: 11px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--t2);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 7px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--bg3);
+            color: var(--t0);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .form-group input::placeholder { color: var(--t2); }
+
+        .form-group input:focus {
+            border-color: rgba(34,211,238,0.4);
+            box-shadow: 0 0 0 3px rgba(34,211,238,0.08);
+        }
+
+        .hint {
+            font-size: 11px;
+            color: var(--t2);
+            margin-top: 5px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: var(--a1);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: opacity .2s, transform .15s;
+        }
+
+        .btn:hover  { opacity: .88; transform: translateY(-1px); }
+        .btn:active { opacity: 1;   transform: translateY(0); }
+
+        .card-footer {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 13px;
+            color: var(--t2);
+        }
+
+        .card-footer a {
+            color: var(--a2);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color .15s;
+        }
+
+        .card-footer a:hover { color: var(--a3); }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+
+       
+        <div class="card">
+            <h1 class="card-title">Create account</h1>
+            <p class="card-sub">Get started in seconds.</p>
+
+            {% if error %}
+            <div class="error-msg" role="alert">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" action="/app2/signup">
+                <div class="form-group">
+                    <label for="emailInput">Email</label>
+                    <input type="email" id="emailInput" name="email"
+                           placeholder="you@domain.com" required autocomplete="email" />
+                </div>
+                <div class="form-group">
+                    <label for="usernameInput">Username</label>
+                    <input type="text" id="usernameInput" name="username"
+                           placeholder="johndoe" required autocomplete="username" />
+                </div>
+                <div class="form-group">
+                    <label for="passwordInput">Password</label>
+                    <input type="password" id="passwordInput" name="password"
+                           placeholder="••••••••" required autocomplete="new-password" />
+                    <div class="hint">At least 8 characters.</div>
+                </div>
+                <button type="submit" class="btn">Create account</button>
+            </form>
+
+            <div class="card-footer">
+                Already have an account? <a href="/app2/login">Sign in</a>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

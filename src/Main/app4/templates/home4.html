@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="App4 Dashboard - GeoArtemis platform management workspace.">
+    <title>GeoArtemis - App 4 Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b111e;
+            --card-bg: rgba(17, 24, 39, 0.65);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --primary-hover-gradient: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+            --glow-color: rgba(99, 102, 241, 0.15);
+            --accent-pink: #ec4899;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 0.15) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(263, 40%, 25%, 0.1) 0, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(11, 17, 30, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            color: #ffffff;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+        }
+
+        .btn-logout {
+            color: #f87171;
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            background: rgba(248, 113, 113, 0.05);
+        }
+
+        .btn-logout:hover {
+            color: #ffffff;
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 24px;
+            width: 100%;
+            flex-grow: 1;
+        }
+
+        .welcome-hero {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 48px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-hero::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: rgba(236, 72, 153, 0.1);
+            color: var(--accent-pink);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .hero-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .hero-desc {
+            color: var(--text-secondary);
+            font-size: 16px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+
+        .stat-title {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <a href="/app1/" class="brand" id="brandLink">
+                <span class="brand-logo">GeoArtemis</span>
+            </a>
+            <nav class="nav-links" aria-label="Main Navigation">
+                <a href="/app1/" class="nav-link" id="navApp1">App 1</a>
+                <a href="/app3/" class="nav-link" id="navApp3">App 3</a>
+                <a href="/app4/" class="nav-link active" id="navApp4">App 4</a>
+                <a href="/app2/logout" class="nav-link btn-logout" id="navLogout">Log Out</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="welcome-hero">
+            <span class="hero-tag">Workspace Active</span>
+            <h1 class="hero-title">Welcome to App 4 💫</h1>
+            <p class="hero-desc">You are successfully authenticated and verified. This is the App 4 platform workspace. Use the top navigation bar to explore other integrated modules.</p>
+        </section>
+
+        <section class="stats-grid">
+            <div class="stat-card" id="statSession">
+                <span class="stat-icon">🔑</span>
+                <h2 class="stat-title">Session Security</h2>
+                <div class="stat-value">Active &amp; Secure</div>
+            </div>
+            <div class="stat-card" id="statDB">
+                <span class="stat-icon">💾</span>
+                <h2 class="stat-title">Database Connected</h2>
+                <div class="stat-value">SQLite Backend</div>
+            </div>
+            <div class="stat-card" id="statModule">
+                <span class="stat-icon">🧩</span>
+                <h2 class="stat-title">Active Module</h2>
+                <div class="stat-value">Core Workspace 4</div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
