@@ -9,7 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;600;700&display=swap"
         rel="stylesheet" />
-    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="/app3/css/styles.css" />
+    <!-- KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 </head>
 
 <body>
@@ -281,7 +285,7 @@
     <aside class="copilot-panel" id="copilotPanel">
 
         <!-- Copilot Header -->
-        <div class="copilot-header">
+        <div class="copilot-header" style="position: relative;">
             <div class="copilot-identity">
                 <div class="copilot-avatar">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -298,6 +302,7 @@
                         <span>Online</span>
                     </div>
                 </div>
+                <button id="citationCheckerBtn" style="position: absolute; right: 16px; top: 16px; background-color: white; color: #1e293b; border: 1px solid #cbd5e1; padding: 4px 12px; border-radius: 4px; font-weight: 500; cursor: pointer; font-size: 12px;">Checker</button>
             </div>
             <div class="copilot-desc">Analyze, compare and understand research papers.</div>
         </div>
@@ -399,8 +404,21 @@
 
     </aside><!-- /copilot-panel -->
 
+    <!-- Citation Checker Modal -->
+    <div id="citationModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+        <div style="background: #0f172a; color: #f8fafc; border: 1px solid #1e293b; border-radius: 8px; width: 90%; max-width: 800px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #1e293b; background: #020617;">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Citation Checker Report</h3>
+                <button id="closeCitationModalBtn" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 20px;">&times;</button>
+            </div>
+            <div id="citationModalBody" style="padding: 24px; overflow-y: auto; flex: 1; font-size: 14px; line-height: 1.5; background: #0f172a;">
+                Loading report...
+            </div>
+        </div>
+    </div>
+
     <input type="file" id="pdfFileInput" accept=".pdf" style="display:none;" />
-    <script src="app.js"></script>
+    <script src="/app3/app.js?v=3" defer></script>
 </body>
 
 </html>

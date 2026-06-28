@@ -20,7 +20,21 @@ try:
 
     load_dotenv()
 except ImportError:
-    pass
+    # Fallback to manual parsing if python-dotenv is not installed in the environment
+    env_path = Path(__file__).resolve().parents[3] / ".env"
+    if env_path.exists():
+        with open(env_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    key, val = line.split("=", 1)
+                    key = key.strip()
+                    val = val.strip().strip("'\"")
+                    if key:
+                        os.environ.setdefault(key, val)
+
 
 
 def get_env_int(name: str, default: int) -> int:

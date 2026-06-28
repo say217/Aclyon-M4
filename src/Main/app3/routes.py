@@ -1,16 +1,21 @@
-import os
+import os
 import sys
 import sqlite3
 import json
 import traceback
 from pathlib import Path
 from fastapi import APIRouter, Body, Form, Request, status, UploadFile, File
-from fastapi.responses import FileResponse, RedirectResponse, JSONResponse
+from fastapi.responses import FileResponse, RedirectResponse, JSONResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
 
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent / "templates"))
+
+# Ensure Pipeline_src/ is on sys.path so 'execute' and 'connections' can be imported
+PIPELINE_DIR = str(Path(__file__).resolve().parents[3] / "Pipeline_src")
+if PIPELINE_DIR not in sys.path:
+    sys.path.insert(0, PIPELINE_DIR)
 
 DB_PATH = os.getenv("SQLITE_DB_PATH", str(Path(__file__).resolve().parents[3] / "database.db"))
 PDF_DIR = Path(__file__).resolve().parents[3] / "data" / "pdfs"
@@ -19,6 +24,12 @@ METADATA_PATH = Path(__file__).resolve().parents[3] / "data" / "metadata" / "VLM
 
 # Ensure upload directory exists
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+BYPASS_AUTH = os.getenv("BYPASS_AUTH", "false").lower() == "true"
+
+
+def _is_authenticated(request: Request) -> bool:
+    return BYPASS_AUTH or bool(request.session.get("is_verified"))
 
 
 def get_db_connection():
@@ -55,7 +66,7 @@ ensure_app3_tables()
 
 @router.get("/")
 def home(request: Request):
-    if not request.session.get("is_verified"):
+    if not _is_authenticated(request):
         return RedirectResponse(url="/app2/login", status_code=status.HTTP_303_SEE_OTHER)
     return templates.TemplateResponse("home3.html", {"request": request})
 
@@ -68,7 +79,15 @@ def get_css():
 
 @router.get("/app.js")
 def get_js():
-    return FileResponse(str(Path(__file__).resolve().parent / "js" / "app.js"))
+    response = FileResponse(str(Path(__file__).resolve().parent / "js" / "app.js"))
+    # Prevent browsers/proxies from caching a stale copy of this file across
+    # deploys — this was the root cause of the "Connection error: ... is not
+    # valid JSON" bug (browser kept serving an old app.js that still expected
+    # a JSON response instead of the new streamed plain-text response).
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @router.get("/api/papers")
@@ -204,50 +223,130 @@ def serve_pdf(paper_id: str):
         return JSONResponse(status_code=404, content={"error": "PDF file not found"})
 
 
-@router.post("/api/chat")
-async def chat(request: Request, payload: dict = Body(...)):
-    if not request.session.get("is_verified"):
-        return JSONResponse(status_code=401, content={"error": "Not authenticated"})
-
-    question       = payload.get("question", "").strip()
-    paper_title    = payload.get("paper_title", "")
-    paper_authors  = payload.get("paper_authors", "")
-    paper_year     = payload.get("paper_year", "")
+def _full_question(payload: dict) -> str:
+    question = payload.get("question", "").strip()
+    paper_title = payload.get("paper_title", "")
+    paper_authors = payload.get("paper_authors", "")
+    paper_year = payload.get("paper_year", "")
     paper_abstract = payload.get("paper_abstract", "")
 
-    if not question:
+    if not paper_title:
+        return question
+
+    return (
+        f"[The user is currently viewing this paper: "
+        f"\"{paper_title}\" by {paper_authors} ({paper_year}). "
+        f"Abstract: {paper_abstract[:300]}]\n\n"
+        f"{question}"
+    )
+
+
+@router.post("/api/chat")
+async def chat(request: Request, payload: dict = Body(...)):
+    """Compatibility endpoint for cached clients that expect JSON."""
+    if not _is_authenticated(request):
+        return JSONResponse(status_code=401, content={"error": "Not authenticated"})
+
+    if not payload.get("question", "").strip():
         return JSONResponse(status_code=400, content={"error": "No question provided"})
 
-    context_prefix = ""
-    if paper_title:
-        context_prefix = (
-            f"[The user is currently viewing this paper: "
-            f"\"{paper_title}\" by {paper_authors} ({paper_year}). "
-            f"Abstract: {paper_abstract[:300]}]\n\n"
-        )
-
-    full_question = context_prefix + question
-
-    # Read pipeline from app.state (loaded at startup in main.py)
     pipeline = request.app.state.pipeline
     pipeline_error = request.app.state.pipeline_error
-
     if pipeline is None:
-        return JSONResponse(
-            status_code=503,
-            content={"error": f"Pipeline agent not available: {pipeline_error or 'unknown error'}"}
-        )
+        return JSONResponse(status_code=503, content={"error": f"Pipeline agent not available: {pipeline_error or 'unknown error'}"})
 
     try:
         result = pipeline.invoke({
-            "question":         full_question,
-            "route":            "search",
-            "documents":        [],
+            "question": _full_question(payload),
+            "route": "search",
+            "documents": [],
             "ranked_documents": [],
-            "answer":           "",
+            "answer": "",
         })
-        answer = result.get("answer", "No response generated.")
-        return {"answer": answer}
+        return JSONResponse(content={"answer": result.get("answer", "No response generated.")})
     except Exception as e:
         traceback.print_exc()
         return JSONResponse(status_code=500, content={"error": f"Agent error: {str(e)}"})
+
+
+@router.post("/api/chat/stream")
+async def chat_stream(request: Request, payload: dict = Body(...)):
+    """Stream plain-text answer chunks to the current frontend."""
+    if not _is_authenticated(request):
+        return JSONResponse(status_code=401, content={"error": "Not authenticated"})
+
+    if not payload.get("question", "").strip():
+        return JSONResponse(status_code=400, content={"error": "No question provided"})
+
+    full_question = _full_question(payload)
+    pipeline = request.app.state.pipeline
+    pipeline_error = request.app.state.pipeline_error
+    if pipeline is None:
+        return JSONResponse(status_code=503, content={"error": f"Pipeline agent not available: {pipeline_error or 'unknown error'}"})
+
+    import execute as _execute_module
+    import connections as _connections
+
+    def _stream_tokens():
+        try:
+            state = {
+                "question": full_question,
+                "route": "search",
+                "documents": [],
+                "ranked_documents": [],
+                "answer": "",
+            }
+            state = _execute_module.route_node(state)
+
+            if state["route"] == "catalog":
+                state = _execute_module.catalog_node(state)
+                yield state.get("answer", "No response generated.")
+                return
+
+            state = _execute_module.retrieve_node(state)
+            state = _execute_module.rank_node(state)
+            yield from _connections.generate_answer_stream(full_question, state["ranked_documents"])
+        except Exception as e:
+            traceback.print_exc()
+            yield f"\n\n[Agent error: {str(e)}]"
+
+    return StreamingResponse(
+        _stream_tokens(),
+        media_type="text/plain",
+        headers={"Cache-Control": "no-cache, no-store, must-revalidate", "X-Accel-Buffering": "no"},
+    )
+
+@router.post("/api/citation-check")
+async def citation_check(request: Request, payload: dict = Body(...)):
+    if not _is_authenticated(request):
+        return JSONResponse(status_code=401, content={"error": "Not authenticated"})
+
+    paper_id = payload.get("paper_id")
+    title = payload.get("paper_title")
+    abstract = payload.get("paper_abstract", "")
+    authors = payload.get("paper_authors", "")
+    year = payload.get("paper_year", "")
+
+    if not paper_id and not title:
+        return JSONResponse(status_code=400, content={"error": "paper_id or paper_title is required"})
+
+    text = f"Title: {title}\nAuthors: {authors}\nYear: {year}\nAbstract: {abstract}"
+
+    try:
+        from .citation_checker import check
+        report = check(text=text)
+        
+        # Format response to match frontend expectations
+        report["paper"] = {"title": title, "authors": authors, "year": year}
+        report["summary"] = {
+            "total": report.get("total", 0),
+            "verified": report.get("verified", 0),
+            "mismatch": report.get("mismatch", 0),
+            "not_found": report.get("not_found", 0),
+            "unverifiable": report.get("unverifiable", 0)
+        }
+        
+        return JSONResponse(content=report)
+    except Exception as e:
+        traceback.print_exc()
+        return JSONResponse(status_code=500, content={"error": str(e)})

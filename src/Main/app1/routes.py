@@ -8,7 +8,9 @@ router = APIRouter()
 
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent / "templates"))
 
-BYPASS_AUTH = True  # TODO: set to False when auth is ready
+import os
+BYPASS_AUTH = os.getenv("BYPASS_AUTH", "false").lower() == "true"
+
 
 @router.get("/")
 def home(request: Request):

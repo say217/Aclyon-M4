@@ -43,7 +43,37 @@ const CHIP_PROMPTS = {
 function renderMarkdown(raw) {
   let text = raw == null ? '' : String(raw);
 
-  // Escape HTML first
+  // 1. Extract Display Math (Blocks)
+  const displayMathBlocks = [];
+  // Match $$ ... $$ (can span multiple lines)
+  text = text.replace(/\$\$([\s\S]+?)\$\$/g, (match, math) => {
+    const placeholder = `__MATH_DISPLAY_${displayMathBlocks.length}__`;
+    displayMathBlocks.push(math);
+    return `\n\n${placeholder}\n\n`;
+  });
+  // Match \[ ... \] (can span multiple lines)
+  text = text.replace(/\\\[([\s\S]+?)\\\]/g, (match, math) => {
+    const placeholder = `__MATH_DISPLAY_${displayMathBlocks.length}__`;
+    displayMathBlocks.push(math);
+    return `\n\n${placeholder}\n\n`;
+  });
+
+  // 2. Extract Inline Math
+  const inlineMathBlocks = [];
+  // Match $ ... $ (non-newline, non-escaped $)
+  text = text.replace(/(?<!\\)\$((?!\s)[^$\n]+?(?<!\s))(?<!\\)\$/g, (match, math) => {
+    const placeholder = `__MATH_INLINE_${inlineMathBlocks.length}__`;
+    inlineMathBlocks.push(math);
+    return placeholder;
+  });
+  // Match \( ... \)
+  text = text.replace(/\\\(([\s\S]+?)\\\)/g, (match, math) => {
+    const placeholder = `__MATH_INLINE_${inlineMathBlocks.length}__`;
+    inlineMathBlocks.push(math);
+    return placeholder;
+  });
+
+  // 3. Escape HTML first
   text = text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -98,6 +128,9 @@ function renderMarkdown(raw) {
       html += '<br>';
     } else if (/^<div class="code-block">/.test(trimmed)) {
       html += trimmed;
+    } else if (/^__MATH_DISPLAY_\d+__$/.test(trimmed)) {
+      // Display math block shouldn't be wrapped in a <p> tag
+      html += trimmed;
     } else {
       html += `<p>${line}</p>`;
     }
@@ -105,8 +138,41 @@ function renderMarkdown(raw) {
 
   if (inList) html += '</ul>';
 
+  // 4. Restore Display Math
+  displayMathBlocks.forEach((math, idx) => {
+    html = html.replace(`__MATH_DISPLAY_${idx}__`, `$$$$${math}$$$$`);
+  });
+
+  // 5. Restore Inline Math
+  inlineMathBlocks.forEach((math, idx) => {
+    html = html.replace(`__MATH_INLINE_${idx}__`, `$$${math}$$`);
+  });
+
   return html;
 }
+
+
+function renderMath(element) {
+  if (window.renderMathInElement) {
+    try {
+      window.renderMathInElement(element, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$', right: '$', display: false },
+          { left: '\\(', right: '\\)', display: false },
+          { left: '\\[', right: '\\]', display: true },
+          { left: '\\begin{equation}', right: '\\end{equation}', display: true },
+          { left: '\\begin{align}', right: '\\end{align}', display: true },
+          { left: '\\begin{gather}', right: '\\end{gather}', display: true }
+        ],
+        throwOnError: false
+      });
+    } catch (e) {
+      console.error("KaTeX math rendering failed:", e);
+    }
+  }
+}
+
 
 
 /* ══════════════════════════════════════════════════════════
@@ -415,6 +481,122 @@ class CopilotController {
     });
 
     qs('#attachBtn').addEventListener('click', () => showToast('Attachment options ready'));
+
+    // Citation Checker
+    const checkerBtn = qs('#citationCheckerBtn');
+    const modal = qs('#citationModal');
+    const closeBtn = qs('#closeCitationModalBtn');
+    const modalBody = qs('#citationModalBody');
+
+    if (checkerBtn && modal && closeBtn) {
+      checkerBtn.addEventListener('click', async () => {
+        if (!this.currentPaper) {
+          showToast('Please select a paper first');
+          return;
+        }
+        modal.style.display = 'flex';
+        modalBody.innerHTML = `
+          <div class="skeleton-loader" style="animation: pulse 1.5s infinite; opacity: 0.7;">
+            <div style="height: 24px; background: #1e293b; border-radius: 4px; width: 40%; margin-bottom: 24px;"></div>
+            <div style="height: 16px; background: #1e293b; border-radius: 4px; width: 80%; margin-bottom: 12px;"></div>
+            <div style="height: 80px; background: #1e293b; border-radius: 6px; width: 100%; margin-bottom: 16px;"></div>
+            <div style="height: 80px; background: #1e293b; border-radius: 6px; width: 100%; margin-bottom: 16px;"></div>
+            <div style="height: 80px; background: #1e293b; border-radius: 6px; width: 100%; margin-bottom: 16px;"></div>
+            <style>
+              @keyframes pulse {
+                0% { opacity: 0.5; }
+                50% { opacity: 1; }
+                100% { opacity: 0.5; }
+              }
+            </style>
+          </div>
+        `;
+
+        try {
+          const res = await fetch('/app3/api/citation-check', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paper_id: this.currentPaper.id,
+              paper_title: this.currentPaper.title,
+              paper_abstract: this.currentPaper.abstract,
+              paper_authors: this.currentPaper.authors,
+              paper_year: this.currentPaper.year
+            })
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Failed to check citations');
+          }
+          
+          const report = await res.json();
+          this._renderCitationReport(report, modalBody);
+        } catch (err) {
+          modalBody.innerHTML = `<div style="color: #ef4444;">Error: ${err.message}</div>`;
+        }
+      });
+
+      closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+    }
+  }
+
+  _renderCitationReport(report, container) {
+    if (report.error) {
+      container.innerHTML = `<div style="color: #ef4444;">Error: ${report.error}</div>`;
+      return;
+    }
+    
+    let html = `<h4 style="margin-top:0;">Paper: ${report.paper?.title || 'Unknown'}</h4>`;
+    html += `<p style="margin-bottom:16px;">Total Citations: ${report.summary.total} (Verified: <span style="color:#22c55e">${report.summary.verified}</span>, Mismatch: <span style="color:#f59e0b">${report.summary.mismatch}</span>, Not Found: <span style="color:#ef4444">${report.summary.not_found}</span>, Unverifiable: <span style="color:#94a3b8">${report.summary.unverifiable}</span>)</p>`;
+    
+    if (!report.citations || report.citations.length === 0) {
+      html += `<p>No citations found.</p>`;
+      container.innerHTML = html;
+      return;
+    }
+    
+    html += `<ul style="list-style: none; padding: 0; margin-top: 16px;">`;
+    report.citations.forEach((cit) => {
+      let statusColor = '#94a3b8'; // unverifiable
+      if (cit.status === 'verified') statusColor = '#22c55e';
+      else if (cit.status === 'mismatch') statusColor = '#f59e0b';
+      else if (cit.status === 'not_found') statusColor = '#ef4444';
+      
+      html += `<li style="background: #020617; padding: 16px; margin-bottom: 12px; border-radius: 6px; border-left: 4px solid ${statusColor};">`;
+      html += `<div style="font-weight: 600; margin-bottom: 4px;">Claimed: ${cit.claimed_title || 'No Title'}</div>`;
+      
+      let claimedMeta = [];
+      if (cit.claimed_authors) claimedMeta.push(`Authors: ${cit.claimed_authors}`);
+      if (cit.claimed_year) claimedMeta.push(`Year: ${cit.claimed_year}`);
+      
+      if (claimedMeta.length > 0) {
+        html += `<div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">${claimedMeta.join(' | ')}</div>`;
+      }
+
+      html += `<div style="font-size: 12px; margin-bottom: 8px;">Status: <span style="color: ${statusColor}; font-weight: bold;">${cit.status.toUpperCase()}</span></div>`;
+      
+      let foundMeta = [];
+      if (cit.found_title) foundMeta.push(`Title: ${cit.found_title}`);
+      if (cit.found_authors) foundMeta.push(`Authors: ${cit.found_authors}`);
+      if (cit.found_year) foundMeta.push(`Year: ${cit.found_year}`);
+      if (cit.found_doi) foundMeta.push(`DOI: ${cit.found_doi}`);
+
+      if (foundMeta.length > 0) {
+        html += `<div style="font-size: 12px; color: #cbd5e1; margin-bottom: 4px; padding: 12px; background: #1e293b; border-radius: 4px;"><strong>Found Match:</strong><br>${foundMeta.join(' | ')}</div>`;
+      }
+
+      if (cit.note) {
+        html += `<div style="font-size: 12px; color: #f59e0b; margin-top: 8px;">Notes: ${cit.note}</div>`;
+      }
+      
+      html += `</li>`;
+    });
+    html += `</ul>`;
+    
+    container.innerHTML = html;
   }
 
   setPaper(paper) {
@@ -499,20 +681,61 @@ class CopilotController {
     };
 
     try {
-      const res = await fetch('/app3/api/chat', {
+      const res = await fetch('/app3/api/chat/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      thinkingEl.remove();
-
       if (!res.ok) {
-        this._addAssistantMessage(data.error || 'The research agent ran into an error.', true);
-      } else {
-        this._addAssistantMessage(data.answer || 'No response generated.');
+        thinkingEl.remove();
+        let errMsg = 'The research agent ran into an error.';
+        try {
+          const errorText = await res.text();
+          const contentType = res.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
+            errMsg = JSON.parse(errorText).error || errMsg;
+          } else if (errorText) {
+            errMsg = errorText;
+          }
+        } catch (_) { /* Keep the default error message. */ }
+        this._addAssistantMessage(errMsg, true);
+        return;
       }
+
+      if (!res.body) {
+        // Fallback for environments without streaming body support.
+        thinkingEl.remove();
+        const text = await res.text();
+        this._addAssistantMessage(text || 'No response generated.');
+        return;
+      }
+
+      // Swap the thinking indicator for a live bubble we fill token-by-token.
+      thinkingEl.remove();
+      const { wrapper, bubbleContent } = this._addAssistantMessageStream();
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let fullText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunkText = decoder.decode(value, { stream: true });
+        if (!chunkText) continue;
+
+        fullText += chunkText;
+        bubbleContent.innerHTML = renderMarkdown(fullText);
+        this._scrollToBottom();
+      }
+
+      if (!fullText.trim()) {
+        bubbleContent.innerHTML = renderMarkdown('No response generated.');
+      }
+
+      this._finalizeAssistantMessage(wrapper);
     } catch (err) {
       console.error(err);
       thinkingEl.remove();
@@ -544,6 +767,40 @@ class CopilotController {
     this.chatArea.appendChild(wrapper);
     this._scrollToBottom();
     return wrapper;
+  }
+
+  _addAssistantMessageStream() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'message assistant-message';
+
+    wrapper.innerHTML = `
+      <div class="msg-avatar">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1.5C3.96 1.5 1.5 3.96 1.5 7S3.96 12.5 7 12.5 12.5 10.04 12.5 7 10.04 1.5 7 1.5z" fill="#3B82F6" opacity="0.25"/>
+          <path d="M4.5 7.5L6.5 9.5L9.5 5.5" stroke="#3B82F6" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="msg-bubble">
+        <div class="agent-answer"></div>
+      </div>
+    `;
+
+    this.chatArea.appendChild(wrapper);
+    this._scrollToBottom();
+
+    const bubbleContent = wrapper.querySelector('.agent-answer');
+    return { wrapper, bubbleContent };
+  }
+
+  _finalizeAssistantMessage(wrapper) {
+    const bubble = wrapper.querySelector('.msg-bubble');
+    if (bubble && !bubble.querySelector('.msg-time')) {
+      const timeEl = document.createElement('div');
+      timeEl.className = 'msg-time';
+      timeEl.textContent = formatTime();
+      bubble.appendChild(timeEl);
+    }
+    this._scrollToBottom();
   }
 
   _addAssistantMessage(content, isError = false) {
